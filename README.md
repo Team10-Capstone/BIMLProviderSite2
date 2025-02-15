@@ -1,4 +1,6 @@
-navigate to server directory, run `npm run dev`
+if first time, after cloning, navigate to root directory and run `npm install`
+
+other wise navigate to server directory, run `npm run dev`
 
 navigate to client directory, run `npm run dev`
 
