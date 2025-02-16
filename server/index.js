@@ -1,14 +1,17 @@
 const express = require("express");
 const app = express();
+
+require("dotenv").config({path: '../.env'});
+
 const cors = require("cors");
 const corsOptions = {
-    origin: ["http://localhost:5173"],
+    origin: [process.env.CORS_ORIGIN],
 };
 
 app.use(cors(corsOptions));
 
 app.get("/api", (req, res) =>  {
-    res.json({ fruits: ["apple", "orange"]});
+    res.json({ fruits: ["apple", "orange", "meow"]});
 });
 
 app.listen(8080, () => {

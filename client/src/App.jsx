@@ -8,12 +8,16 @@ function App() {
   const [count, setCount] = useState(0);
   const [array, setArray] = useState([]);
 
-
+  const serverAddress = import.meta.env.VITE_SERVER_ADDRESS;
 
   const fetchAPI = async () => {
-    const bruh = await axios.get("http://localhost:8080/api");
-    console.log(bruh.data.fruits);
-    setArray(bruh.data.fruits);
+    try {
+      const bruh = await axios.get(serverAddress);
+      console.log(bruh.data.fruits);
+      setArray(bruh.data.fruits);
+    } catch (error) {
+      console.error("error fetching data:", error);
+    }
   };
 
   useEffect(() => {
