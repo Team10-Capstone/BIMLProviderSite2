@@ -6,10 +6,11 @@ import axios from "axios";
 
 function App() {
   const [count, setCount] = useState(0);
+  //array contains the frutis returned by /api, players contains array of names of players from db
   const [array, setArray] = useState([]);
   const [players, setPlayers] = useState([]);
 
-  // const serverAddress = import.meta.env.VITE_SERVER_ADDRESS;
+  // sets addresses to node server
   const serverAddress = import.meta.env.VITE_SERVER_ADDRESS;
   const fruitsAddress = `${serverAddress}api`;
   const playerAddress = `${serverAddress}players`;
@@ -28,7 +29,7 @@ function App() {
       const ok = await axios.get(playerAddress);
       console.log(ok.data);
       setPlayers(ok.data);
-      
+
     } catch (error) {
       console.error("error fetching data:", error);
     }

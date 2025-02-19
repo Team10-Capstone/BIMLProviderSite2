@@ -4,19 +4,22 @@ const app = express();
 
 require("dotenv").config({path: '../.env'});
 
+//i dont think this does anything
 const PORT = process.env.PORT || 3000;
 
+//ensures only receiving requests from client server via .env file
 const cors = require("cors");
 const corsOptions = {
     origin: [process.env.CORS_ORIGIN],
 };
-
+//applies above options
 app.use(cors(corsOptions));
 
 app.get("/api", (req, res) =>  {
     res.json({ fruits: ["apple", "orange", "meow"]});
 });
 
+/*
 app.get('/player/:id', async (req, res) => {
     const patientId = req.params.id;
 
@@ -37,7 +40,10 @@ app.get('/player/:id', async (req, res) => {
         res.status(500).json({ error: "Database error" });
     }
 });
+*/
 
+//uses pool to query db for the names of players from tbl_players
+//function returns array of names
 app.get('/players', async (req, res) => {
     const patientId = req.params.id;
 

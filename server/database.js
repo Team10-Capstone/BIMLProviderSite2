@@ -1,6 +1,7 @@
 const { Pool } = require('pg');
 require("dotenv").config({path: '../.env'});
 
+//creates a database connection
 const pool = new Pool({
     user: process.env.DB_USER,
     host: process.env.DB_HOST,
@@ -10,6 +11,7 @@ const pool = new Pool({
     ssl: { rejectUnauthorized: false } // Enable SSL if required
 });
 
+//prints whether it successfully connects to the database
 async function testConnection() {
     try {
         const res = await pool.query("SELECT NOW();");
