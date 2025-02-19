@@ -172,3 +172,7 @@ sketch
 # Ignore all local history of files
 .history
 .ionide
+
+# graveyard, where i keep code on handy to use later bc
+# idk javascript :)
+/client/graveyard.jsx

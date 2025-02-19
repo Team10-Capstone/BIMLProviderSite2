@@ -7,29 +7,17 @@ import axios from "axios";
 function App() {
   const [count, setCount] = useState(0);
   //array contains the frutis returned by /api, players contains array of names of players from db
-  const [array, setArray] = useState([]);
-  const [players, setPlayers] = useState([]);
+  const [playerNames, setPlayerNames] = useState([]);
+  const [player, setPlayer] = useState();
+  const [recordings, setRecordings] = useState([]);
 
   // sets addresses to node server
-  const serverAddress = import.meta.env.VITE_SERVER_ADDRESS;
-  const fruitsAddress = `${serverAddress}api`;
-  const playerAddress = `${serverAddress}players`;
+  const apiAddress = import.meta.env.VITE_SERVER_ADDRESS;
 
   const fetchAPI = async () => {
     try {
-      // const bruh = await axios.get(fruitsAddress);
-
-      // if (bruh.data.fruits == undefined)
-      //   console.log("bruh ts undefined");
-      // else {
-      //   console.log(bruh.data.fruits);
-      //   setArray(bruh.data.fruits);
-      // }
-
-      const ok = await axios.get(playerAddress);
-      console.log(ok.data);
-      setPlayers(ok.data);
-
+      const recordingS = await axios.get(`${apiAddress}/patient/recordings/p001`);
+      setRecordings(recordingS.data);
     } catch (error) {
       console.error("error fetching data:", error);
     }
@@ -57,21 +45,13 @@ function App() {
         <p>
           Edit <code>src/App.jsx</code> and save to test HMR
         </p>
-        {/* {
-          array.map((fruit, index) => {
-            return (
-              <div key={index}>
-                <p>{fruit}</p>
-                <br></br>
-              </div>
-            )
-          })
-        } */}
         {
-          players.map((player, index) => {
+          recordings.map((recording, index) => {
             return (
               <div key={index}>
-                <p>{player}</p>
+                <p>Name: {recording.fld_r_name}</p>
+                <p>Address: {recording.fld_r_address}</p>
+                <p>Date: {recording.fld_r_date}</p>
               </div>
             )
           })
