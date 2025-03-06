@@ -16,8 +16,9 @@ export default function App() {
 
   const fetchAPI = async () => {
     try {
-      const recordingS = await axios.get(`${apiAddress}/patient/recordings/p001`);
+      const recordingS = await axios.get(`${apiAddress}/patients`);
       setRecordings(recordingS.data);
+      console.log(recordingS.data);
     } catch (error) {
       console.error("error fetching data:", error);
     }

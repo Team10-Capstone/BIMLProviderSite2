@@ -8,9 +8,9 @@ services:
       - "5173:5173"
     env_file:
       - .env
-    # If you need specific environment variables for client:
-    # environment:
-    #   - CLIENT_ENV_VAR=value
+    volumes:
+      - ./client:/app
+      - /app/node_modules
 
   server:
     image: dylnorris19/server
@@ -20,9 +20,9 @@ services:
       - "8080:8080"
     env_file:
       - .env
-    # If you need specific environment variables for server:
-    # environment:
-    #   - SERVER_ENV_VAR=value
+    volumes:
+      - ./server:/app
+      - /app/node_modules
 networks:
   default:
     attachable: true
