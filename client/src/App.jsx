@@ -16,8 +16,23 @@ function App() {
 
   const fetchAPI = async () => {
     try {
+<<<<<<< Updated upstream
       const recordingS = await axios.get(`${apiAddress}/patient/recordings/p001`);
       setRecordings(recordingS.data);
+=======
+      const bruh = {
+        email: "meow@gmail.com",
+        pass: "meow123"
+      }
+
+      const ok = await axios.post(`${apiAddress}/users`, bruh, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      console.log(ok.status);
+>>>>>>> Stashed changes
     } catch (error) {
       console.error("error fetching data:", error);
     }

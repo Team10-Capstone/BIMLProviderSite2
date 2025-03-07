@@ -1,6 +1,7 @@
 const express = require("express");
 const pool = require('./database');
 const app = express();
+const bcrypt = require('bcryptjs');
 
 require("dotenv").config({ path: '../.env' });
 
@@ -13,6 +14,7 @@ const corsOptions = {
 };
 //applies above options
 app.use(cors(corsOptions));
+app.use(express.json());
 
 //gets players that the therapist services
 //takes the therapist id parameter
@@ -138,6 +140,69 @@ app.get('/patients/names', async (req, res) => {
         res.status(500).json({ error: "Database error" });
     }
 });
+
+//registers email and password into database
+//takes in req object that looks like
+//{
+//  id: "uxxx",
+//  email: "xxxx@xxx.xxx",
+//  pass: "xxxx"
+//}
+//**needs to be updated if table changes**
+app.post('/users/register', async (req, res) => {
+    try {
+        const salt = await bcrypt.genSalt();
+        const hashedPassword = await bcrypt.hash(req.body.pass, salt);
+
+        const user = {
+            id: req.body.id,
+            email: req.body.email,
+            password: hashedPassword
+        };
+
+        console.log(user);
+
+        await pool.query(
+            `INSERT INTO biml.login(userid, useremail, userpassword)
+                VALUES ($1, $2, $3);`, [user.id, user.email, user.password]
+        )
+
+        res.status(201).send();
+    } catch(err) {
+        console.log(err);
+        res.status(500).send();
+    }
+    
+});
+
+//takes in log in and verifies it if its in the database
+//json object looks like this
+//{
+//  email: "xxxx@xxxx.xxx"
+//  pass: "xxxx"
+//}
+app.post('/users/login', async (req, res) => {
+    // const user = users.find(user => user.name === req.body.name)
+    const user = await pool.query(
+        `SELECT *
+        FROM biml.login
+        WHERE useremail = $1;`, [req.body.email]
+    );
+
+    if (user.rows.length > 0) {
+        try {
+            if (await bcrypt.compare(req.body.pass, user.rows[0].userpassword))
+                res.status(200).send();
+            else   
+                res.status(401).send('nah gang');
+        } catch (err){
+            console.log(err);
+            res.status(500).send(':(');
+        }
+    } else {
+        return res.status(400).send('Cannot find user');
+    }
+})
 
 app.listen(port, () => {
     console.log("Server started on port " + `${port}`);
