@@ -160,8 +160,6 @@ app.post('/users/register', async (req, res) => {
             password: hashedPassword
         };
 
-        console.log(user);
-
         await pool.query(
             `INSERT INTO biml.login(userid, useremail, userpassword)
                 VALUES ($1, $2, $3);`, [user.id, user.email, user.password]

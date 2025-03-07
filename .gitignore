@@ -176,3 +176,4 @@ sketch
 # graveyard, where i keep code on handy to use later bc
 # idk javascript :)
 /client/graveyard.jsx
+*.rest
