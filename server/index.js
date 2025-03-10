@@ -2,6 +2,7 @@ const express = require("express");
 const pool = require('./database');
 const app = express();
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 require("dotenv").config({ path: '../.env' });
 
@@ -181,17 +182,19 @@ app.post('/users/register', async (req, res) => {
 //}
 app.post('/users/login', async (req, res) => {
     // const user = users.find(user => user.name === req.body.name)
-    const user = await pool.query(
+    const u = await pool.query(
         `SELECT *
         FROM biml.login
         WHERE useremail = $1;`, [req.body.email]
     );
 
-    if (user.rows.length > 0) {
+    if (u.rows.length > 0) {
         try {
-            if (await bcrypt.compare(req.body.pass, user.rows[0].userpassword))
-                res.status(200).send();
-            else   
+            const user = u.rows[0]
+            if (await bcrypt.compare(req.body.pass, user.userpassword)) {
+                const accessToken = jwt.sign(user, process.env.SECRET_ACCESS_TOKEN);
+                res.status(200).json({ accessToken: accessToken}); //start here
+            } else   
                 res.status(401).send('nah gang');
         } catch (err){
             console.log(err);
