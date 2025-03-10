@@ -192,8 +192,10 @@ app.post('/users/login', async (req, res) => {
         try {
             const user = u.rows[0]
             if (await bcrypt.compare(req.body.pass, user.userpassword)) {
-                const accessToken = jwt.sign(user, process.env.SECRET_ACCESS_TOKEN);
-                res.status(200).json({ accessToken: accessToken}); //start here
+                const accessToken = generateToken(user);
+                const refreshToken = jwt.sign(user, process.env.SECRET_REFRESH_TOKEN)
+                refreshTokens.push(refreshToken);
+                res.status(200).json({ accessToken: accessToken, refreshToken: refreshToken}); //start here
             } else   
                 res.status(401).send('nah gang');
         } catch (err){
@@ -203,6 +205,68 @@ app.post('/users/login', async (req, res) => {
     } else {
         return res.status(400).send('Cannot find user');
     }
+})
+
+function generateToken(user) {
+    //CHANGE FROM 15 SECONDS
+    return jwt.sign(user, process.env.SECRET_ACCESS_TOKEN, { expiresIn: '15s' });
+}
+
+const users = [
+    {
+        email: 'meow@gmail.com'
+    },
+    {
+        email: 'RAWR@gmail.com'
+    }
+]
+
+let refreshTokens = [];
+
+app.post('/users/login/test', authenticateToken, (req, res) => {
+    //req.user is given to us from middleware, which is the payload (user from database) extracted
+    //from the token
+    res.json(users.filter(user => user.email === req.user.useremail));
+})
+
+function authenticateToken (req, res, next) {
+    //validate token
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (token == null)
+        return res.sendStatus(401);
+    
+    //verify token
+    jwt.verify(token, process.env.SECRET_ACCESS_TOKEN, (err, user) => {
+        if (err)
+            return res.sendStatus(403);
+        req.user = user;
+        next();
+    })
+}
+
+app.post('/users/token', (req, res) => {
+    const refreshToken = req.body.token
+    //is there a refresh token?
+    if (refreshToken == null)
+        return res.sendStatus(401)
+    //was this refreshtoken a previous one?
+    if (!refreshTokens.includes(refreshToken))
+        return res.status(403).send("not previous one");
+
+    jwt.verify(refreshToken, process.env.SECRET_REFRESH_TOKEN, (err, user) => {
+        if(err)
+            return res.status(403).send("bruh");
+        console.log(user.useremail);
+        const accessToken = generateToken({ useremail: user.useremail})
+        res.json({ accessToken: accessToken})
+    })
+})
+
+app.delete('/users/logout', (req, res) => {
+    refreshTokens = refreshTokens.filter(token => token !== req.body.token);
+    res.sendStatus(204);
 })
 
 app.listen(port, () => {
