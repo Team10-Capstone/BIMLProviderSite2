@@ -199,7 +199,7 @@ app.post('/users/login', async (req, res) => {
                 const accessToken = generateToken(user);
                 const refreshToken = jwt.sign(user, process.env.SECRET_REFRESH_TOKEN)
                 
-                if (sendToken('t002', user.userid, refreshToken))
+                if (sendToken(req.body.tid, user.userid, refreshToken))
                     res.status(200).json({ accessToken: accessToken, refreshToken: refreshToken});
                 else
                     res.status(500).send('Failed to insert token to db');
