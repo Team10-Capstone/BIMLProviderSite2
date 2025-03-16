@@ -26,6 +26,20 @@ export default function LoginPage() {
     }))
   }
 
+  // Custom input style to apply to all inputs
+  const inputStyle = {
+    width: '100%',
+    padding: '12px 16px',
+    backgroundColor: 'rgba(15, 20, 34, 0.6)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    borderRadius: '6px',
+    color: 'white',
+    fontSize: '16px',
+    fontFamily: 'monospace',
+    transition: 'all 0.2s ease',
+    outline: 'none',
+  };
+
   return (
     <div 
       style={{
@@ -55,19 +69,25 @@ export default function LoginPage() {
       {/* Login Form - Centered */}
       <div style={{ 
         width: '100%', 
-        maxWidth: '400px', 
-        padding: '20px',
-        backgroundColor: 'rgba(27, 33, 51, 0.5)',
-        backdropFilter: 'blur(8px)',
-        borderRadius: '8px',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
-        boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)',
+        maxWidth: '420px', 
+        padding: '32px',
+        backgroundColor: 'rgba(27, 33, 51, 0.7)',
+        backdropFilter: 'blur(12px)',
+        borderRadius: '12px',
+        border: '1px solid rgba(255, 255, 255, 0.15)',
+        boxShadow: '0 20px 50px rgba(0, 0, 0, 0.3)',
         position: 'relative',
         zIndex: 10
       }}>
-        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <svg 
-            style={{ width: '48px', height: '48px', color: '#b760ea', margin: '0 auto 16px' }}
+            style={{ 
+              width: '64px', 
+              height: '64px', 
+              color: '#b760ea', 
+              margin: '0 auto 20px',
+              filter: 'drop-shadow(0 0 8px rgba(183, 96, 234, 0.5))'
+            }}
             viewBox="0 0 24 24" 
             fill="none" 
             stroke="currentColor" 
@@ -76,51 +96,109 @@ export default function LoginPage() {
             <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/>
             <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/>
           </svg>
-          <h2 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: 'white', marginBottom: '8px' }}>Welcome Back</h2>
-          <p style={{ color: '#9ca3af', marginBottom: '24px' }}>Sign in to your account</p>
+          <h2 style={{ 
+            fontSize: '28px', 
+            fontWeight: 'bold', 
+            color: 'white', 
+            marginBottom: '10px',
+            letterSpacing: '0.5px',
+            textShadow: '0 2px 4px rgba(0,0,0,0.3)'
+          }}>Welcome Back</h2>
+          <p style={{ 
+            color: '#b8bfd0', 
+            marginBottom: '24px', 
+            fontSize: '16px',
+            letterSpacing: '0.3px'
+          }}>Sign in to your account</p>
         </div>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <label htmlFor="email" style={{ color: '#8b8d91', fontSize: '0.875rem' }}>
-              Email
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <label 
+              htmlFor="email" 
+              style={{ 
+                color: '#d1d5db', 
+                fontSize: '14px',
+                fontWeight: 'bold',
+                letterSpacing: '0.5px',
+                marginLeft: '4px'
+              }}
+            >
+              EMAIL
             </label>
-            <Input
+            <input
               id="email"
               type="email"
               value={formData.email}
               onChange={handleChange}
               required
               placeholder="Enter your email"
+              style={inputStyle}
             />
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <label htmlFor="password" style={{ color: '#8b8d91', fontSize: '0.875rem' }}>
-              Password
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <label 
+              htmlFor="password" 
+              style={{ 
+                color: '#d1d5db', 
+                fontSize: '14px',
+                fontWeight: 'bold',
+                letterSpacing: '0.5px',
+                marginLeft: '4px'
+              }}
+            >
+              PASSWORD
             </label>
-            <Input
+            <input
               id="password"
               type="password"
               value={formData.password}
               onChange={handleChange}
               required
               placeholder="Enter your password"
+              style={inputStyle}
             />
           </div>
 
-          <Button
+          <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-[#b760ea] hover:bg-[#b760ea]/90 text-white font-mono py-3 rounded mt-4"
+            style={{
+              width: '100%',
+              padding: '14px 0',
+              backgroundColor: '#b760ea',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontFamily: 'monospace',
+              fontSize: '16px',
+              fontWeight: 'bold',
+              cursor: isLoading ? 'wait' : 'pointer',
+              marginTop: '12px',
+              transition: 'transform 0.2s, box-shadow 0.2s',
+              boxShadow: '0 4px 12px rgba(183, 96, 234, 0.3)',
+              letterSpacing: '0.5px'
+            }}
           >
             {isLoading ? 'Logging in...' : 'Log in'}
-          </Button>
+          </button>
         </form>
 
-        <p style={{ marginTop: '24px', textAlign: 'center', fontSize: '0.875rem', color: '#9ca3af' }}>
+        <p style={{ 
+          marginTop: '28px', 
+          textAlign: 'center', 
+          fontSize: '15px', 
+          color: '#b8bfd0' 
+        }}>
           Don't have an account?{' '}
-          <Link to="/signup" style={{ color: '#a78bfa', textDecoration: 'none' }}>
+          <Link to="/signup" style={{ 
+            color: '#c490fd', 
+            textDecoration: 'none',
+            fontWeight: 'bold',
+            transition: 'color 0.2s',
+            textShadow: '0 0 12px rgba(196, 144, 253, 0.5)'
+          }}>
             Sign up
           </Link>
         </p>
