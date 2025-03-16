@@ -40,6 +40,7 @@ export default function SignupPage() {
     fontFamily: 'monospace',
     transition: 'all 0.2s ease',
     outline: 'none',
+    boxSizing: 'border-box',
   };
 
   return (
@@ -72,14 +73,15 @@ export default function SignupPage() {
       <div style={{ 
         width: '100%', 
         maxWidth: '420px', 
-        padding: '32px',
+        padding: '32px 36px',
         backgroundColor: 'rgba(27, 33, 51, 0.7)',
         backdropFilter: 'blur(12px)',
         borderRadius: '12px',
         border: '1px solid rgba(255, 255, 255, 0.15)',
         boxShadow: '0 20px 50px rgba(0, 0, 0, 0.3)',
         position: 'relative',
-        zIndex: 10
+        zIndex: 10,
+        boxSizing: 'border-box'
       }}>
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <svg 
@@ -114,7 +116,14 @@ export default function SignupPage() {
           }}>Join our community today</p>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <form onSubmit={handleSubmit} style={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          gap: '24px',
+          width: '100%',
+          maxWidth: '350px',
+          margin: '0 auto'
+        }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             <label 
               htmlFor="name" 
