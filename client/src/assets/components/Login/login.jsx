@@ -17,6 +17,7 @@ export default function LoginPage() {
     await new Promise(resolve => setTimeout(resolve, 2000))
     console.log('Form submitted:', formData)
     setIsLoading(false)
+    window.location.href = '/exercises';
   }
 
   const handleChange = (e) => {
