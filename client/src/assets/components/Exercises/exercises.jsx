@@ -85,7 +85,7 @@ export default function ExercisesPage() {
             }}>
               My Exercises
             </h1>
-            <p style={{ color: '#b8bfd0' }}>Track your fitness journey</p>
+            <p style={{ color: '#b8bfd0' }}>Look at your exercises</p>
           </div>
           
           <button 
@@ -207,7 +207,7 @@ export default function ExercisesPage() {
                     cursor: 'pointer',
                     transition: 'background-color 0.2s',
                   }}>
-                    View Details
+                    View Exercise
                   </button>
                 </div>
               </div>
@@ -234,6 +234,19 @@ export default function ExercisesPage() {
               <path d="M3 12h18M3 6h18M3 18h18" />
             </svg>
             Dashboard
+          </Link>
+          <Link to="/provider" style={{ 
+            color: '#c490fd', 
+            textDecoration: 'none',
+            fontWeight: 'bold',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            Provider View
           </Link>
           <Link to="/profile" style={{ 
             color: '#c490fd', 
