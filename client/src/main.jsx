@@ -6,10 +6,8 @@ import './index.css'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <div className="min-h-screen flex flex-col">
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </div>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
   </StrictMode>
 )
