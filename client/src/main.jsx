@@ -5,11 +5,9 @@ import App from './App'
 import './index.css'
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <div className="min-h-screen flex flex-col">
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </div>
-  </StrictMode>
+  <div className="min-h-screen flex flex-col">
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </div>
 )

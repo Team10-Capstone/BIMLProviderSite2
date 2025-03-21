@@ -16,18 +16,8 @@ export default function App() {
 
   const fetchAPI = async () => {
     try {
-      const bruh = {
-        email: "meow@gmail.com",
-        pass: "meow123"
-      }
+      
 
-      const ok = await axios.post(`${apiAddress}/users`, bruh, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-      console.log(ok.status);
     } catch (error) {
       console.error("error fetching data:", error);
     }

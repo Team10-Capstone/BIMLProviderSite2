@@ -3,6 +3,7 @@ const pool = require('./database');
 const app = express();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 
 require("dotenv").config({ path: '../.env' });
 
@@ -12,10 +13,12 @@ const port = process.env.PORT || 3000;
 const cors = require("cors");
 const corsOptions = {
     origin: [process.env.CORS_ORIGIN],
+    credentials: true
 };
 //applies above options
 app.use(cors(corsOptions));
 app.use(express.json());
+app.use(cookieParser());
 
 //gets players that the therapist services
 //takes the therapist id parameter
@@ -199,9 +202,13 @@ app.post('/users/login', async (req, res) => {
                 const accessToken = generateToken(user);
                 const refreshToken = jwt.sign(user, process.env.SECRET_REFRESH_TOKEN)
                 
-                if (sendToken(req.body.tid, user.userid, refreshToken))
-                    res.status(200).json({ accessToken: accessToken, refreshToken: refreshToken});
-                else
+                if (sendToken(req.body.tid, user.userid, refreshToken)) {
+                    res.cookie('refreshToken', refreshToken, {
+                        httpOnly: true,
+                        sameSite: 'Strict'
+                    })
+                    res.status(200).json({ accessToken: accessToken });
+                } else
                     res.status(500).send('Failed to insert token to db');
             } else   
                 res.status(401).send('nah gang');
@@ -274,7 +281,7 @@ function authenticateToken (req, res, next) {
 //regenerate access token if expired
 //checks if refresh token is valid
 app.post('/users/token', async (req, res) => {
-    const refreshToken = req.body.token
+    const refreshToken = req.cookies.refreshToken
     //is there a refresh token?
     if (refreshToken == null)
         return res.sendStatus(401)
@@ -327,10 +334,11 @@ async function validRefresh(token) {
 }
 
 //calls deleteToken function
-app.delete('/users/logout', (req, res) => {
+app.delete('/users/logout', async (req, res) => {
     // refreshTokens = refreshTokens.filter(token => token !== req.body.token);
     try {
-        deleteToken(req.body.token);
+        deleteToken(req.cookies.refreshToken);
+        res.clearCookie('refreshToken', {httpOnly: true});
         res.sendStatus(204);
     } catch (err) {
         res.status(500).status("can't delete?");
@@ -338,11 +346,16 @@ app.delete('/users/logout', (req, res) => {
 })
 
 //deletes token from db
-function deleteToken(token) {
-    pool.query(
+async function deleteToken(token) {
+    try {
+        const result = await pool.query(
             `DELETE FROM biml.tokens
             WHERE refreshtoken = $1;`, [token]
-        )
+        );
+        console.log(`Deleted ${result.rowCount} rows`);
+    } catch (err) {
+        console.error("Error deleting token: ", err);
+    }
 }
 
 //checks if refreshtoken is in database
