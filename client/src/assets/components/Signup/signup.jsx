@@ -28,95 +28,215 @@ export default function SignupPage() {
     }))
   }
 
+  // Custom input style to apply to all inputs
+  const inputStyle = {
+    width: '100%',
+    padding: '12px 16px',
+    backgroundColor: 'rgba(15, 20, 34, 0.6)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    borderRadius: '6px',
+    color: 'white',
+    fontSize: '16px',
+    fontFamily: 'monospace',
+    transition: 'all 0.2s ease',
+    outline: 'none',
+    boxSizing: 'border-box',
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#111827] relative overflow-hidden font-mono">
-      <div className="absolute top-4 left-4 z-20">
+    <div 
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#111827',
+        fontFamily: 'monospace'
+      }}
+    >
+      {/* Logo in top left */}
+      <div style={{ position: 'absolute', top: '16px', left: '16px', zIndex: 20 }}>
         <h1 className="text-4xl font-bold text-white opacity-20 tracking-wider glitch">BIMLAR</h1>
       </div>
 
-      <div className="absolute inset-0 z-0">
+      {/* Background grid and glow */}
+      <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:14px_24px]" />
         <div className="absolute left-0 right-0 top-[-10%] h-[500px] bg-gradient-to-br from-purple-500 to-blue-500 opacity-20 blur-[100px]" />
       </div>
 
-      <div className="w-full max-w-md mx-auto px-6">
-        <div className="relative z-10 bg-[#1b2133]/50 backdrop-blur-sm p-8 rounded-lg border border-[#ffffff10] shadow-xl">
-          <div className="flex justify-center items-center mb-6">
-            <svg 
-              className="w-12 h-12 text-[#b760ea]"
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="1.5"
-              style={{ maxWidth: '48px', maxHeight: '48px' }}
+      {/* Signup Form - Centered */}
+      <div style={{ 
+        width: '100%', 
+        maxWidth: '420px', 
+        padding: '32px 36px',
+        backgroundColor: 'rgba(27, 33, 51, 0.7)',
+        backdropFilter: 'blur(12px)',
+        borderRadius: '12px',
+        border: '1px solid rgba(255, 255, 255, 0.15)',
+        boxShadow: '0 20px 50px rgba(0, 0, 0, 0.3)',
+        position: 'relative',
+        zIndex: 10,
+        boxSizing: 'border-box'
+      }}>
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <svg 
+            style={{ 
+              width: '64px', 
+              height: '64px', 
+              color: '#b760ea', 
+              margin: '0 auto 20px',
+              filter: 'drop-shadow(0 0 8px rgba(183, 96, 234, 0.5))'
+            }}
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="1.5"
+          >
+            <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/>
+            <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/>
+          </svg>
+          <h2 style={{ 
+            fontSize: '28px', 
+            fontWeight: 'bold', 
+            color: 'white', 
+            marginBottom: '10px',
+            letterSpacing: '0.5px',
+            textShadow: '0 2px 4px rgba(0,0,0,0.3)'
+          }}>Create Account</h2>
+          <p style={{ 
+            color: '#b8bfd0', 
+            marginBottom: '24px', 
+            fontSize: '16px',
+            letterSpacing: '0.3px'
+          }}>Join our community today</p>
+        </div>
+
+        <form onSubmit={handleSubmit} style={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          gap: '24px',
+          width: '100%',
+          maxWidth: '350px',
+          margin: '0 auto'
+        }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <label 
+              htmlFor="name" 
+              style={{ 
+                color: '#d1d5db', 
+                fontSize: '14px',
+                fontWeight: 'bold',
+                letterSpacing: '0.5px',
+                marginLeft: '4px'
+              }}
             >
-              <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/>
-              <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/>
-            </svg>
+              NAME
+            </label>
+            <input
+              id="name"
+              type="text"
+              value={formData.name}
+              onChange={handleChange}
+              required
+              placeholder="Enter your name"
+              style={inputStyle}
+            />
           </div>
 
-          <h2 className="text-3xl font-bold text-center text-white mb-4">Create Account</h2>
-          <p className="text-gray-400 text-center mb-8">Join our community today</p>
-
-          <form onSubmit={handleSubmit} className="space-y-8">
-            <div className="space-y-4">
-              <label htmlFor="name" className="block text-sm font-mono text-[#8b8d91]">
-                Name
-              </label>
-              <Input
-                id="name"
-                type="text"
-                value={formData.name}
-                onChange={handleChange}
-                required
-                placeholder="Enter your name"
-              />
-            </div>
-
-            <div className="space-y-4">
-              <label htmlFor="email" className="block text-sm font-mono text-[#8b8d91]">
-                Email
-              </label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                placeholder="Enter your email"
-              />
-            </div>
-
-            <div className="space-y-4">
-              <label htmlFor="password" className="block text-sm font-mono text-[#8b8d91]">
-                Password
-              </label>
-              <Input
-                id="password"
-                type="password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                placeholder="Create a password"
-              />
-            </div>
-
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-[#b760ea] hover:bg-[#b760ea]/90 text-white font-mono py-3 rounded mt-8"
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <label 
+              htmlFor="email" 
+              style={{ 
+                color: '#d1d5db', 
+                fontSize: '14px',
+                fontWeight: 'bold',
+                letterSpacing: '0.5px',
+                marginLeft: '4px'
+              }}
             >
-              {isLoading ? 'Creating account...' : 'Sign up'}
-            </Button>
-          </form>
+              EMAIL
+            </label>
+            <input
+              id="email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              placeholder="Enter your email"
+              style={inputStyle}
+            />
+          </div>
 
-          <p className="mt-8 text-center text-sm text-gray-400">
-            Already have an account?{' '}
-            <Link to="/login" className="text-purple-400 hover:underline">
-              Log in
-            </Link>
-          </p>
-        </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <label 
+              htmlFor="password" 
+              style={{ 
+                color: '#d1d5db', 
+                fontSize: '14px',
+                fontWeight: 'bold',
+                letterSpacing: '0.5px',
+                marginLeft: '4px'
+              }}
+            >
+              PASSWORD
+            </label>
+            <input
+              id="password"
+              type="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              placeholder="Create a password"
+              style={inputStyle}
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            style={{
+              width: '100%',
+              padding: '14px 0',
+              backgroundColor: '#b760ea',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontFamily: 'monospace',
+              fontSize: '16px',
+              fontWeight: 'bold',
+              cursor: isLoading ? 'wait' : 'pointer',
+              marginTop: '12px',
+              transition: 'transform 0.2s, box-shadow 0.2s',
+              boxShadow: '0 4px 12px rgba(183, 96, 234, 0.3)',
+              letterSpacing: '0.5px'
+            }}
+          >
+            {isLoading ? 'Creating account...' : 'Sign up'}
+          </button>
+        </form>
+
+        <p style={{ 
+          marginTop: '28px', 
+          textAlign: 'center', 
+          fontSize: '15px', 
+          color: '#b8bfd0' 
+        }}>
+          Already have an account?{' '}
+          <Link to="/login" style={{ 
+            color: '#c490fd', 
+            textDecoration: 'none',
+            fontWeight: 'bold',
+            transition: 'color 0.2s',
+            textShadow: '0 0 12px rgba(196, 144, 253, 0.5)'
+          }}>
+            Log in
+          </Link>
+        </p>
       </div>
     </div>
   )
