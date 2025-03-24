@@ -165,8 +165,8 @@ app.post('/users/register', async (req, res) => {
         };
 
         await pool.query(
-            `INSERT INTO biml.login(userid, useremail, userpassword)
-                VALUES ($1, $2, $3);`, [user.id, user.email, user.password]
+            `INSERT INTO biml.login(useremail, userpassword)
+                VALUES ($1, $2);`, [user.email, user.password]
         )
 
         res.status(201).send();
@@ -232,8 +232,8 @@ function generateToken(user) {
 async function sendToken(tokenid, userid, token) {
     try {
         await pool.query(
-            `INSERT INTO biml.tokens(tokenid, useridfk, refreshtoken)
-            VALUES  ($1, $2, $3);`, [tokenid, userid, token]
+            `INSERT INTO biml.tokens(useridfk, refreshtoken)
+            VALUES  ($1, $2);`, [userid, token]
         );
         return true;
     } catch (err) {
