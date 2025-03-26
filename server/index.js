@@ -4,6 +4,10 @@ const app = express();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
+const AWS = require("aws-sdk");
+const fs = require("fs");
+const multer = require("multer");
+const upload = multer({dest: "uploads/"});
 
 require("dotenv").config({ path: '../.env' });
 
@@ -15,10 +19,80 @@ const corsOptions = {
     origin: [process.env.CORS_ORIGIN],
     credentials: true
 };
+
+const s3 = new AWS.S3();
 //applies above options
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
+
+app.post('/tests3', async (req, res) => {
+    try {
+        await s3.putObject({
+            Body: "hello world",
+            Bucket: "biml-bucket",
+            Key: "test/my-file.txt"
+        }).promise();
+        res.sendStatus(200);
+    } catch (err) {
+        console.log(err);
+        res.sendStatus(500);
+    }
+});
+
+app.post('/uploadcsv', upload.single("exercise"), async (req, res) => {
+    try {
+        if (!req.file)
+            return res.status(400).send("No file uploaded");
+        
+        const file = fs.readFileSync(req.file.path);
+
+        const user = JSON.parse(req.body.user);
+        const key = `test/${user.exercisename}_${Date.now()}.csv`;
+
+        const result = await pool.query(
+            `INSERT INTO biml.exercises(s3_key, patient_id, name)
+            VALUES ($1, $2, $3)`, [key, user.pid, user.exercisename]
+        );
+
+        await s3.putObject({
+            Body: file,
+            Bucket: "biml-bucket",
+            Key: key,
+            ContentType: 'text/csv'
+        }).promise();
+
+        fs.unlinkSync(req.file.path);
+
+        console.log("successful..?");
+
+        res.sendStatus(200);
+    } catch (err) {
+        console.log(err);
+        res.sendStatus(500);
+    }
+});
+
+// app.post('/uploadcsv', async (req, res) => {
+//     try {
+//         console.log('Current working directory:', process.cwd());
+//         const file = fs.readFileSync("/app/Test_Squat_Correct_Format.csv");
+
+//         await s3.putObject({
+//             Body: file,
+//             Bucket: "biml-bucket",
+//             Key: "test/ianTest.csv",
+//             ContentType: 'text/csv'
+//         }).promise();
+
+//         console.log("successful..?");
+
+//         res.sendStatus(200);
+//     } catch (err) {
+//         console.log(err);
+//         res.sendStatus(500);
+//     }
+// });
 
 //gets players that the therapist services
 //takes the therapist id parameter
