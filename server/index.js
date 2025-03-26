@@ -298,7 +298,7 @@ app.post('/users/login', async (req, res) => {
 //generates an access token, needs to be changed from 15s
 function generateToken(user) {
     //CHANGE FROM 15 SECONDS
-    return jwt.sign(user, process.env.SECRET_ACCESS_TOKEN, { expiresIn: '15s' });
+    return jwt.sign(user, process.env.SECRET_ACCESS_TOKEN, { expiresIn: '5m' });
 }
 
 //sends refresh token to database
