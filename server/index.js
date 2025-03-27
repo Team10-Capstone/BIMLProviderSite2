@@ -12,7 +12,7 @@ const upload = multer({dest: "uploads/"});
 const pool = require('./database');
 const auth = require('./auth');
 const graves = require('./graveyard');
-const s3 = require('./s3');
+const { s3, archiver } = require('./s3');
 
 
 require("dotenv").config({ path: '../.env' });
@@ -29,6 +29,8 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 
+//uploads file given to s3 and links up with patient id given in database
+//does not require authentication (yet)
 app.post('/uploadcsv', upload.single("exercise"), async (req, res) => {
     try {
         if (!req.file)
@@ -56,6 +58,62 @@ app.post('/uploadcsv', upload.single("exercise"), async (req, res) => {
         console.log("successful..?");
 
         res.sendStatus(200);
+    } catch (err) {
+        console.log(err);
+        res.sendStatus(500);
+    }
+});
+
+//gets all exercises associated with patient id given in zip file
+//requires authentication
+app.get('/exercises/:pid', auth.authenticateToken, async (req, res) => {
+    const patientId = req.params.pid;
+
+    const zipStream = archiver('zip', { zlib: {level: 9} });
+    res.attachment('exercises.zip');
+    zipStream.pipe(res);
+
+    try {
+        const result = await pool.query(
+            `SELECT biml.exercises.s3_key
+            FROM biml.exercises
+            WHERE patient_id = $1`, [patientId]
+        );
+
+        if (result.rows.length > 0) {
+            for (const row of result.rows) {
+                const fileStream = s3.getObject({
+                    Bucket: 'biml-bucket',
+                    Key: row.s3_key
+                }).createReadStream();
+
+                zipStream.append(fileStream, { name: row.s3_key });
+            }
+            zipStream.finalize();
+        }
+    } catch (err) {
+        console.log(err);
+        res.sendStatus(500);
+    }
+});
+
+//downloads image from s3, later will replace with deliverable for unity app
+//requires authentication
+app.get('/app/download', auth.authenticateToken, (req, res) => {
+    try {
+        const perms = {
+            Bucket: 'biml-bucket',
+            Key: 'test/meow.jpg',
+            Expires: 60,
+            ResponseCacheControl: 'no-cache',
+            ResponseContentDisposition: 'attachment; filename="yahoooo.jpg"'
+        };
+
+        s3.getSignedUrl('getObject', perms, (err, url) => {
+            if (err)
+                return res.status(500).send('Error generating pre-signed URL');
+            res.json({ url });
+        });
     } catch (err) {
         console.log(err);
         res.sendStatus(500);
