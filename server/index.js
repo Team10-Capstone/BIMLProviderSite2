@@ -97,6 +97,32 @@ app.get('/exercises/:pid', auth.authenticateToken, async (req, res) => {
     }
 });
 
+app.get('/exercises/list/:pid', auth.authenticateToken, async (req, res) => {
+    const patientId = req.params.pid;
+
+    try {
+        const result = await pool.query(
+            `SELECT s3_key
+            FROM biml.exercises
+            WHERE patient_id = $1`, [patientId]
+        );
+
+        if (result.rows.length > 0) {
+            const list = result.rows.map(row => {
+                filename = row.s3_key.split('/').pop()
+                const [ key, dateString ] = filename.split('_');
+                return { key, date: new Date(parseInt(dateString)) };
+            });
+
+            res.status(200).json(list);
+        } else
+            res.sendStatus(404)
+    } catch (err) {
+        console.log(err);
+        res.sendStatus(500);
+    }
+})
+
 //downloads image from s3, later will replace with deliverable for unity app
 //requires authentication
 app.get('/app/download', auth.authenticateToken, (req, res) => {
