@@ -7,6 +7,7 @@ import '../../../styles/retro.css'
 
 export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false)
+  const [isCreator, setIsCreator] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -17,8 +18,10 @@ export default function SignupPage() {
     e.preventDefault()
     setIsLoading(true)
     await new Promise(resolve => setTimeout(resolve, 2000))
-    console.log('Form submitted:', formData)
+    console.log('Form submitted:', formData, 'Account type:', isCreator ? 'Creator' : 'User')
     setIsLoading(false)
+    // Redirect to login after successful signup
+    window.location.href = '/login';
   }
 
   const handleChange = (e) => {
@@ -26,6 +29,10 @@ export default function SignupPage() {
       ...prev,
       [e.target.id]: e.target.value
     }))
+  }
+
+  const toggleUserType = () => {
+    setIsCreator(prev => !prev);
   }
 
   // Custom input style to apply to all inputs
@@ -103,27 +110,65 @@ export default function SignupPage() {
           <h2 style={{ 
             fontSize: '28px', 
             fontWeight: 'bold', 
-            color: 'white', 
-            marginBottom: '10px',
-            letterSpacing: '0.5px',
-            textShadow: '0 2px 4px rgba(0,0,0,0.3)'
-          }}>Create Account</h2>
-          <p style={{ 
-            color: '#b8bfd0', 
-            marginBottom: '24px', 
-            fontSize: '16px',
-            letterSpacing: '0.3px'
-          }}>Join our community today</p>
+            marginBottom: '8px',
+            color: 'white',
+            letterSpacing: '0.5px'
+          }}>
+            Create an Account
+          </h2>
+          <p style={{ color: '#94a3b8', fontSize: '15px' }}>
+            Join our community of physical therapy professionals
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ 
+        {/* User Type Toggle */}
+        <div style={{ 
           display: 'flex', 
-          flexDirection: 'column', 
-          gap: '24px',
-          width: '100%',
-          maxWidth: '350px',
-          margin: '0 auto'
+          marginBottom: '24px',
+          backgroundColor: 'rgba(15, 20, 34, 0.6)',
+          borderRadius: '6px',
+          padding: '4px',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
         }}>
+          <button
+            type="button"
+            onClick={toggleUserType}
+            style={{
+              flex: 1,
+              padding: '8px 16px',
+              borderRadius: '6px',
+              border: 'none',
+              background: isCreator ? 'transparent' : 'rgba(183, 96, 234, 0.5)',
+              color: isCreator ? '#a1a1aa' : 'white',
+              fontFamily: 'monospace',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            User
+          </button>
+          <button
+            type="button"
+            onClick={toggleUserType}
+            style={{
+              flex: 1,
+              padding: '8px 16px',
+              borderRadius: '6px',
+              border: 'none',
+              background: isCreator ? 'rgba(183, 96, 234, 0.5)' : 'transparent',
+              color: isCreator ? 'white' : '#a1a1aa',
+              fontFamily: 'monospace',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            Creator
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             <label 
               htmlFor="name" 
@@ -216,7 +261,7 @@ export default function SignupPage() {
               letterSpacing: '0.5px'
             }}
           >
-            {isLoading ? 'Creating account...' : 'Sign up'}
+            {isLoading ? 'Creating account...' : `Sign up as ${isCreator ? 'Creator' : 'User'}`}
           </button>
         </form>
 

@@ -6,6 +6,7 @@ import '../../../styles/retro.css'
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
+  const [isCreator, setIsCreator] = useState(false)
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -17,7 +18,8 @@ export default function LoginPage() {
     await new Promise(resolve => setTimeout(resolve, 2000))
     console.log('Form submitted:', formData)
     setIsLoading(false)
-    window.location.href = '/exercises';
+    // Redirect based on user type
+    window.location.href = isCreator ? '/provider' : '/download';
   }
 
   const handleChange = (e) => {
@@ -25,6 +27,10 @@ export default function LoginPage() {
       ...prev,
       [e.target.id]: e.target.value
     }))
+  }
+
+  const toggleUserType = () => {
+    setIsCreator(prev => !prev);
   }
 
   // Custom input style to apply to all inputs
@@ -68,7 +74,7 @@ export default function LoginPage() {
         <div className="absolute left-0 right-0 top-[-10%] h-[500px] bg-gradient-to-br from-purple-500 to-blue-500 opacity-20 blur-[100px]" />
       </div>
 
-      {/* Login Form - Centered */}
+      {/* Form Card */}
       <div style={{ 
         width: '100%', 
         maxWidth: '420px', 
@@ -80,7 +86,8 @@ export default function LoginPage() {
         boxShadow: '0 20px 50px rgba(0, 0, 0, 0.3)',
         position: 'relative',
         zIndex: 10,
-        boxSizing: 'border-box'
+        boxSizing: 'border-box',
+        color: 'white'
       }}>
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <svg 
@@ -102,28 +109,66 @@ export default function LoginPage() {
           <h2 style={{ 
             fontSize: '28px', 
             fontWeight: 'bold', 
-            color: 'white', 
-            marginBottom: '10px',
-            letterSpacing: '0.5px',
-            textShadow: '0 2px 4px rgba(0,0,0,0.3)'
-          }}>Welcome Back</h2>
-          <p style={{ 
-            color: '#b8bfd0', 
-            marginBottom: '24px', 
-            fontSize: '16px',
-            letterSpacing: '0.3px'
-          }}>Sign in to your account</p>
+            marginBottom: '8px',
+            color: 'white',
+            letterSpacing: '0.5px'
+          }}>
+            Welcome Back
+          </h2>
+          <p style={{ color: '#94a3b8', fontSize: '15px' }}>
+            Sign in to your account to continue
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ 
+        {/* User Type Toggle */}
+        <div style={{ 
           display: 'flex', 
-          flexDirection: 'column', 
-          gap: '24px',
-          width: '100%',
-          maxWidth: '350px',
-          margin: '0 auto'
+          marginBottom: '24px',
+          backgroundColor: 'rgba(15, 20, 34, 0.6)',
+          borderRadius: '6px',
+          padding: '4px',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
         }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <button
+            type="button"
+            onClick={toggleUserType}
+            style={{
+              flex: 1,
+              padding: '8px 16px',
+              borderRadius: '6px',
+              border: 'none',
+              background: isCreator ? 'transparent' : 'rgba(183, 96, 234, 0.5)',
+              color: isCreator ? '#a1a1aa' : 'white',
+              fontFamily: 'monospace',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            User
+          </button>
+          <button
+            type="button"
+            onClick={toggleUserType}
+            style={{
+              flex: 1,
+              padding: '8px 16px',
+              borderRadius: '6px',
+              border: 'none',
+              background: isCreator ? 'rgba(183, 96, 234, 0.5)' : 'transparent',
+              color: isCreator ? 'white' : '#a1a1aa',
+              fontFamily: 'monospace',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            Creator
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
             <label 
               htmlFor="email" 
               style={{ 
@@ -139,15 +184,15 @@ export default function LoginPage() {
             <input
               id="email"
               type="email"
+              placeholder="Enter your email"
               value={formData.email}
               onChange={handleChange}
               required
-              placeholder="Enter your email"
               style={inputStyle}
             />
           </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '24px' }}>
             <label 
               htmlFor="password" 
               style={{ 
@@ -163,14 +208,14 @@ export default function LoginPage() {
             <input
               id="password"
               type="password"
+              placeholder="••••••••"
               value={formData.password}
               onChange={handleChange}
               required
-              placeholder="Enter your password"
               style={inputStyle}
             />
           </div>
-
+          
           <button
             type="submit"
             disabled={isLoading}
@@ -185,13 +230,12 @@ export default function LoginPage() {
               fontSize: '16px',
               fontWeight: 'bold',
               cursor: isLoading ? 'wait' : 'pointer',
-              marginTop: '12px',
               transition: 'transform 0.2s, box-shadow 0.2s',
               boxShadow: '0 4px 12px rgba(183, 96, 234, 0.3)',
               letterSpacing: '0.5px'
             }}
           >
-            {isLoading ? 'Logging in...' : 'Log in'}
+            {isLoading ? 'Logging in...' : `Login as ${isCreator ? 'Creator' : 'User'}`}
           </button>
         </form>
 
