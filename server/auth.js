@@ -6,9 +6,10 @@ const jwt = require('jsonwebtoken');
 //registers email and password into database
 //takes in req object that looks like
 //{
-//  id: "uxxx",
+//  id: "1234",
 //  email: "xxxx@xxx.xxx",
-//  pass: "xxxx"
+//  pass: "xxxx",
+//  provider: true
 //}
 //**needs to be updated if table changes**
 async function userRegistration(req, res) {
@@ -19,12 +20,19 @@ async function userRegistration(req, res) {
         const user = {
             id: req.body.id,
             email: req.body.email,
-            password: hashedPassword
+            password: hashedPassword,
+            isProvider: false
         };
+        
+        if (req.body.provider) {
+            user.isProvider = true;
+        }
+
+        foriegnKey = user.isProvider ? "providerid_fk" : "patientid_fk"
 
         await pool.query(
-            `INSERT INTO biml.login(useremail, userpassword)
-                VALUES ($1, $2);`, [user.email, user.password]
+            `INSERT INTO biml.login(useremail, userpassword, ${foriegnKey})
+                VALUES ($1, $2, $3);`, [user.email, user.password, user.id]
         )
 
         res.status(201).send();
@@ -104,11 +112,11 @@ async function userRefreshToken(req, res) {
 //checks if refreshtoken is in database
 async function userCheckToken(req, res) {
     try {
-        const usrToken = req.body.token;
+        const usrToken = req.cookies.refreshToken;
         const u = await pool.query(
             `SELECT *
             FROM biml.tokens
-            WHERE refreshToken = $1;`, [req.body.token]
+            WHERE refreshToken = $1;`, [usrToken]
         );
         if (u.rows.length > 0) {
             const dbToken = u.rows[0].refreshtoken;
