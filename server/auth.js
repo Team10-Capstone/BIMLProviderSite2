@@ -6,10 +6,10 @@ const jwt = require('jsonwebtoken');
 //registers email and password into database
 //takes in req object that looks like
 //{
-//  id: "1234",
 //  email: "xxxx@xxx.xxx",
 //  pass: "xxxx",
 //  provider: true
+//  name: xxx xxx
 //}
 //**needs to be updated if table changes**
 async function userRegistration(req, res) {
@@ -18,22 +18,28 @@ async function userRegistration(req, res) {
         const hashedPassword = await bcrypt.hash(req.body.pass, salt);
 
         const user = {
-            id: req.body.id,
             email: req.body.email,
             password: hashedPassword,
-            isProvider: false
+            isProvider: false,
+            name: req.body.name
         };
-        
-        if (req.body.provider) {
-            user.isProvider = true;
-        }
 
-        foriegnKey = user.isProvider ? "providerid_fk" : "patientid_fk"
+        user.isProvider = req.body.provider;
+        const tableName = user.isProvider ? 'providers' : 'patients';
+        const idField = user.isProvider ? 'providerid' : 'patientid';
+
+        const result = await pool.query(
+            `INSERT INTO biml.${tableName}(fullname)
+            VALUES ($1) RETURNING ${idField}`, [user.name]
+        );
+
+        const foriegnKey = user.isProvider ? "providerid_fk" : "patientid_fk";
+        const userId = result.rows[0][idField];
 
         await pool.query(
             `INSERT INTO biml.login(useremail, userpassword, ${foriegnKey})
-                VALUES ($1, $2, $3);`, [user.email, user.password, user.id]
-        )
+                VALUES ($1, $2, $3);`, [user.email, user.password, userId]
+        );
 
         res.status(201).send();
     } catch(err) {

@@ -4,6 +4,7 @@ import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 import { Button } from '../ui/button'
 import '../../../styles/retro.css'
+import axios from "axios"
 
 export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false)
@@ -14,12 +15,31 @@ export default function SignupPage() {
     password: ''
   })
 
+  const apiAddress = import.meta.env.VITE_SERVER_ADDRESS
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setIsLoading(true)
     await new Promise(resolve => setTimeout(resolve, 2000))
+
+    const request = {
+      email: formData.email,
+      pass: formData.password,
+      provider: isCreator,
+      name: formData.name
+    }
+
+    console.log(request);
+    const testResponse = await axios.post(`${apiAddress}/users/register`, request, {
+      headers: { "Content-Type": "application/json"
+      }
+    })
+
+    console.log(testResponse)
+    
     console.log('Form submitted:', formData, 'Account type:', isCreator ? 'Creator' : 'User')
     setIsLoading(false)
+
     // Redirect to login after successful signup
     window.location.href = '/login';
   }
@@ -35,6 +55,10 @@ export default function SignupPage() {
     setIsCreator(prev => !prev);
   }
 
+  //generate random ID
+  const generateID = (prefix) => {
+    prefix + Math.random().toString(36).substring(2, 9 - prefix.length).toUpperCase();
+  }
   // Custom input style to apply to all inputs
   const inputStyle = {
     width: '100%',
