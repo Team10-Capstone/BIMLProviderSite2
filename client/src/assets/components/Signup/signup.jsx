@@ -29,13 +29,10 @@ export default function SignupPage() {
       name: formData.name
     }
 
-    console.log(request);
     const testResponse = await axios.post(`${apiAddress}/users/register`, request, {
       headers: { "Content-Type": "application/json"
       }
     })
-
-    console.log(testResponse)
     
     console.log('Form submitted:', formData, 'Account type:', isCreator ? 'Creator' : 'User')
     setIsLoading(false)
@@ -55,10 +52,6 @@ export default function SignupPage() {
     setIsCreator(prev => !prev);
   }
 
-  //generate random ID
-  const generateID = (prefix) => {
-    prefix + Math.random().toString(36).substring(2, 9 - prefix.length).toUpperCase();
-  }
   // Custom input style to apply to all inputs
   const inputStyle = {
     width: '100%',
