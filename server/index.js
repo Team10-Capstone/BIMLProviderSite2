@@ -31,19 +31,28 @@ app.use(cookieParser());
 
 //uploads file given to s3 and links up with patient id given in database
 //does not require authentication (yet)
-app.post('/uploadcsv', upload.single("exercise"), async (req, res) => {
+app.post('/uploadcsv', auth.authenticateToken, upload.single("exercise"), async (req, res) => {
     try {
         if (!req.file)
             return res.status(400).send("No file uploaded");
         
         const file = fs.readFileSync(req.file.path);
 
+        const userResult = await pool.query(
+            `SELECT patientid FROM biml.patients 
+             WHERE email = $1`, [req.user.useremail]
+        );
+
+        if (userResult.rows.length === 0) 
+            return res.status(403).send("Unauthorized");
+
+        const patient_id = userResult.rows[0].patientid;
         const user = JSON.parse(req.body.user);
         const key = `test/${user.exercisename}_${Date.now()}.csv`;
 
         const result = await pool.query(
             `INSERT INTO biml.exercises(s3_key, patient_id, name)
-            VALUES ($1, $2, $3)`, [key, user.pid, user.exercisename]
+            VALUES ($1, $2, $3)`, [key, patient_id, user.exercisename]
         );
 
         await s3.putObject({
