@@ -39,15 +39,15 @@ app.post('/uploadcsv', auth.authenticateToken, upload.single("exercise"), async 
         const file = fs.readFileSync(req.file.path);
 
         const userResult = await pool.query(
-            `SELECT patientid FROM biml.patients 
-             WHERE email = $1`, [req.user.useremail]
+            `SELECT patientid_fk FROM biml.login
+             WHERE useremail = $1`, [req.user.useremail]
         );
 
         if (userResult.rows.length === 0) 
             return res.status(403).send("Unauthorized");
 
-        const patient_id = userResult.rows[0].patientid;
-        const user = JSON.parse(req.body.user);
+        const patient_id = userResult.rows[0].patientid_fk;
+        const user = JSON.parse(req.body.userData);
         const key = `test/${user.exercisename}_${Date.now()}.csv`;
 
         const result = await pool.query(
