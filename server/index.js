@@ -75,14 +75,21 @@ app.post('/uploadcsv', auth.authenticateToken, upload.single("exercise"), async 
 
 //gets all exercises associated with patient id given in zip file
 //requires authentication
-app.get('/exercises/:pid', auth.authenticateToken, async (req, res) => {
-    const patientId = req.params.pid;
-
+app.get('/exercises', auth.authenticateToken, async (req, res) => {
     const zipStream = archiver('zip', { zlib: {level: 9} });
     res.attachment('exercises.zip');
     zipStream.pipe(res);
 
     try {
+        const user = await pool.query(
+            `SELECT patientid_fk FROM biml.login
+             WHERE useremail = $1`, [req.user.useremail]
+        );
+        if (user.rows.length === 0) 
+            return res.status(403).send("Unauthorized");
+
+        const patientId = user.rows[0].patientid_fk;
+
         const result = await pool.query(
             `SELECT biml.exercises.s3_key
             FROM biml.exercises
@@ -99,6 +106,8 @@ app.get('/exercises/:pid', auth.authenticateToken, async (req, res) => {
                 zipStream.append(fileStream, { name: row.s3_key });
             }
             zipStream.finalize();
+        } else {
+            res.status(404).send(":(");
         }
     } catch (err) {
         console.log(err);
