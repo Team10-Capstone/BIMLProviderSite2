@@ -4,7 +4,6 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import App from './App.jsx'
 import LoginPage from './assets/components/Login/login.jsx'
 import SignupPage from './assets/components/Signup/signup.jsx'
-import ProviderPage from './assets/components/Provider/provider.jsx'
 import DownloadPage from './assets/components/Download/download.jsx'
 import './index.css'
 
@@ -20,10 +19,6 @@ const router = createBrowserRouter([
   {
     path: '/signup',
     element: <SignupPage />,
-  },
-  {
-    path: '/provider',
-    element: <ProviderPage />,
   },
   {
     path: '/download',

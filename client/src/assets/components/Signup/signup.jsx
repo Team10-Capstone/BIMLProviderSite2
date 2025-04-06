@@ -1,8 +1,5 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Input } from '../ui/input'
-import { Label } from '../ui/label'
-import { Button } from '../ui/button'
 import '../../../styles/retro.css'
 import axios from "axios"
 
@@ -14,31 +11,60 @@ export default function SignupPage() {
     email: '',
     password: ''
   })
+  const [error, setError] = useState('')
+  
+  // Colors matching download page
+  const colors = {
+    primary: '#FF8032',     // Orange color
+    background: '#2A2A2A',  // Darker background - matching download page
+    text: '#E0E0E0',        // Light text - matching download page
+    textSecondary: '#BBBBBB', // Secondary text - matching download page
+    accent: '#FF8032',      // Same orange as primary
+    hover: '#FF9A5E',       // Lighter orange for hover
+    dark: '#202020',        // Darker shade
+    card: '#333333',        // Card background
+    cardHover: '#404040'    // Card hover
+  };
 
   const apiAddress = import.meta.env.VITE_SERVER_ADDRESS
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setIsLoading(true)
-    await new Promise(resolve => setTimeout(resolve, 2000))
-
-    const request = {
-      email: formData.email,
-      pass: formData.password,
-      provider: isCreator,
-      name: formData.name
-    }
-
-    const testResponse = await axios.post(`${apiAddress}/users/register`, request, {
-      headers: { "Content-Type": "application/json"
-      }
-    })
+    setError('')
     
-    console.log('Form submitted:', formData, 'Account type:', isCreator ? 'Creator' : 'User')
-    setIsLoading(false)
-
-    // Redirect to login after successful signup
-    window.location.href = '/login';
+    try {
+      // Wait 2 seconds as in the provided code
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      
+      // Create user account with the structure from the provided code
+      const request = {
+        email: formData.email,
+        pass: formData.password,
+        provider: isCreator,
+        name: formData.name
+      }
+      
+      // Use the /register endpoint as in the provided code
+      const response = await axios.post(`${apiAddress}/users/register`, request, {
+        headers: { "Content-Type": "application/json" }
+      })
+      
+      console.log('Form submitted:', formData, 'Account type:', isCreator ? 'Creator' : 'User')
+      setIsLoading(false)
+      
+      // Redirect to login after successful signup (no auto-login)
+      window.location.href = '/login'
+    } catch (error) {
+      setIsLoading(false)
+      console.error("Signup error:", error)
+      
+      if (error.response && error.response.data) {
+        setError(error.response.data.message || 'Signup failed. Please try again.')
+      } else {
+        setError('Network error. Please check your connection.')
+      }
+    }
   }
 
   const handleChange = (e) => {
@@ -49,17 +75,17 @@ export default function SignupPage() {
   }
 
   const toggleUserType = () => {
-    setIsCreator(prev => !prev);
+    setIsCreator(prev => !prev)
   }
 
-  // Custom input style to apply to all inputs
+  // Custom input style
   const inputStyle = {
     width: '100%',
     padding: '12px 16px',
-    backgroundColor: 'rgba(15, 20, 34, 0.6)',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(0, 0, 0, 0.2)', // Darker input background to match download page
+    border: '1px solid rgba(255, 255, 255, 0.05)', // Border to match download page
     borderRadius: '6px',
-    color: 'white',
+    color: colors.text,
     fontSize: '16px',
     fontFamily: 'monospace',
     transition: 'all 0.2s ease',
@@ -78,8 +104,11 @@ export default function SignupPage() {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#111827',
-        fontFamily: 'monospace'
+        backgroundColor: colors.background, // Updated to match download page
+        fontFamily: 'monospace',
+        overflow: 'auto',
+        padding: '20px',
+        color: colors.text
       }}
     >
       {/* Logo in top left */}
@@ -90,7 +119,7 @@ export default function SignupPage() {
       {/* Background grid and glow */}
       <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:14px_24px]" />
-        <div className="absolute left-0 right-0 top-[-10%] h-[500px] bg-gradient-to-br from-purple-500 to-blue-500 opacity-20 blur-[100px]" />
+        <div className="absolute left-0 right-0 top-[-10%] h-[500px] bg-gradient-to-br from-orange-500 to-orange-700 opacity-20 blur-[100px]" />
       </div>
 
       {/* Signup Form - Centered */}
@@ -98,10 +127,9 @@ export default function SignupPage() {
         width: '100%', 
         maxWidth: '420px', 
         padding: '32px 36px',
-        backgroundColor: 'rgba(27, 33, 51, 0.7)',
-        backdropFilter: 'blur(12px)',
+        backgroundColor: 'rgba(0, 0, 0, 0.2)', // Updated to match download page
         borderRadius: '12px',
-        border: '1px solid rgba(255, 255, 255, 0.15)',
+        border: '1px solid rgba(255, 255, 255, 0.05)', // Updated to match download page
         boxShadow: '0 20px 50px rgba(0, 0, 0, 0.3)',
         position: 'relative',
         zIndex: 10,
@@ -112,9 +140,9 @@ export default function SignupPage() {
             style={{ 
               width: '64px', 
               height: '64px', 
-              color: '#b760ea', 
+              color: colors.primary,
               margin: '0 auto 20px',
-              filter: 'drop-shadow(0 0 8px rgba(183, 96, 234, 0.5))'
+              filter: 'drop-shadow(0 0 8px rgba(255, 128, 50, 0.5))'
             }}
             viewBox="0 0 24 24" 
             fill="none" 
@@ -128,12 +156,12 @@ export default function SignupPage() {
             fontSize: '28px', 
             fontWeight: 'bold', 
             marginBottom: '8px',
-            color: 'white',
+            color: colors.text,
             letterSpacing: '0.5px'
           }}>
             Create an Account
           </h2>
-          <p style={{ color: '#94a3b8', fontSize: '15px' }}>
+          <p style={{ color: colors.textSecondary, fontSize: '15px' }}>
             Join our community of physical therapy professionals
           </p>
         </div>
@@ -142,10 +170,10 @@ export default function SignupPage() {
         <div style={{ 
           display: 'flex', 
           marginBottom: '24px',
-          backgroundColor: 'rgba(15, 20, 34, 0.6)',
+          backgroundColor: 'rgba(0, 0, 0, 0.2)',
           borderRadius: '6px',
           padding: '4px',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
+          border: '1px solid rgba(255, 255, 255, 0.05)',
         }}>
           <button
             type="button"
@@ -155,8 +183,8 @@ export default function SignupPage() {
               padding: '8px 16px',
               borderRadius: '6px',
               border: 'none',
-              background: isCreator ? 'transparent' : 'rgba(183, 96, 234, 0.5)',
-              color: isCreator ? '#a1a1aa' : 'white',
+              background: isCreator ? 'transparent' : `rgba(255, 128, 50, 0.5)`,
+              color: isCreator ? colors.textSecondary : 'white',
               fontFamily: 'monospace',
               fontWeight: 'bold',
               cursor: 'pointer',
@@ -173,8 +201,8 @@ export default function SignupPage() {
               padding: '8px 16px',
               borderRadius: '6px',
               border: 'none',
-              background: isCreator ? 'rgba(183, 96, 234, 0.5)' : 'transparent',
-              color: isCreator ? 'white' : '#a1a1aa',
+              background: isCreator ? `rgba(255, 128, 50, 0.5)` : 'transparent',
+              color: isCreator ? 'white' : colors.textSecondary,
               fontFamily: 'monospace',
               fontWeight: 'bold',
               cursor: 'pointer',
@@ -186,11 +214,12 @@ export default function SignupPage() {
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {/* Name field - added to match functionality */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
             <label 
               htmlFor="name" 
               style={{ 
-                color: '#d1d5db', 
+                color: colors.text, 
                 fontSize: '14px',
                 fontWeight: 'bold',
                 letterSpacing: '0.5px',
@@ -210,11 +239,11 @@ export default function SignupPage() {
             />
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
             <label 
               htmlFor="email" 
               style={{ 
-                color: '#d1d5db', 
+                color: colors.text, 
                 fontSize: '14px',
                 fontWeight: 'bold',
                 letterSpacing: '0.5px',
@@ -234,11 +263,11 @@ export default function SignupPage() {
             />
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '24px' }}>
             <label 
               htmlFor="password" 
               style={{ 
-                color: '#d1d5db', 
+                color: colors.text, 
                 fontSize: '14px',
                 fontWeight: 'bold',
                 letterSpacing: '0.5px',
@@ -264,7 +293,7 @@ export default function SignupPage() {
             style={{
               width: '100%',
               padding: '14px 0',
-              backgroundColor: '#b760ea',
+              backgroundColor: colors.primary,
               color: 'white',
               border: 'none',
               borderRadius: '8px',
@@ -272,9 +301,8 @@ export default function SignupPage() {
               fontSize: '16px',
               fontWeight: 'bold',
               cursor: isLoading ? 'wait' : 'pointer',
-              marginTop: '12px',
               transition: 'transform 0.2s, box-shadow 0.2s',
-              boxShadow: '0 4px 12px rgba(183, 96, 234, 0.3)',
+              boxShadow: '0 4px 12px rgba(255, 128, 50, 0.3)',
               letterSpacing: '0.5px'
             }}
           >
@@ -282,19 +310,30 @@ export default function SignupPage() {
           </button>
         </form>
 
+        {error && (
+          <p style={{ 
+            color: '#ff6b6b', 
+            marginTop: '10px', 
+            textAlign: 'center',
+            fontSize: '14px' 
+          }}>
+            {error}
+          </p>
+        )}
+
         <p style={{ 
           marginTop: '28px', 
           textAlign: 'center', 
           fontSize: '15px', 
-          color: '#b8bfd0' 
+          color: colors.textSecondary
         }}>
           Already have an account?{' '}
           <Link to="/login" style={{ 
-            color: '#c490fd', 
+            color: colors.hover,
             textDecoration: 'none',
             fontWeight: 'bold',
             transition: 'color 0.2s',
-            textShadow: '0 0 12px rgba(196, 144, 253, 0.5)'
+            textShadow: '0 0 12px rgba(255, 128, 50, 0.5)'
           }}>
             Log in
           </Link>
