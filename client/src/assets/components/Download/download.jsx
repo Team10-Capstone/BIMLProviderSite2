@@ -6,6 +6,7 @@ import axios from 'axios'
 export default function DownloadPage() {
   const [expandedFaq, setExpandedFaq] = useState(null);
   const [userName, setUserName] = useState('');
+  const [isDownloading, setIsDownloading] = useState({ windows: false, mac: false });
   const navigate = useNavigate();
   
   // Updated color scheme with orange primary color
@@ -23,6 +24,13 @@ export default function DownloadPage() {
   
   // API address from environment
   const apiAddress = import.meta.env.VITE_SERVER_ADDRESS;
+  
+  // S3 download URLs - these can be easily updated later
+  // Currently pointing to placeholder images, will be updated to actual app builds
+  const downloadUrls = {
+    windows: `${apiAddress}/download/windows`,
+    mac: `${apiAddress}/download/mac`
+  };
 
   useEffect(() => {
     // Check if user is logged in by verifying token
@@ -38,7 +46,6 @@ export default function DownloadPage() {
     try {
       // Get user info from JWT token (basic parsing, no verification needed)
       const tokenPayload = JSON.parse(atob(accessToken.split('.')[1]));
-      console.log("Token payload:", tokenPayload);
       
       // Set username from the token - try useremail first, then try email
       if (tokenPayload.useremail) {
@@ -49,7 +56,7 @@ export default function DownloadPage() {
         setUserName(email.split('@')[0]);
       }
     } catch (error) {
-      console.error("Error decoding token:", error);
+      console.error("Error decoding token");
     }
     
     // Verify token with server as backup
@@ -61,14 +68,12 @@ export default function DownloadPage() {
           }
         });
         
-        console.log("Server response:", response.data);
-        
         // Only set username if not already set from token
         if (!userName && response.data && response.data.length > 0) {
           setUserName(response.data[0].email.split('@')[0]);
         }
       } catch (error) {
-        console.error("Error verifying token:", error);
+        console.error("Error verifying token");
         // Don't redirect here, since we already got info from token
       }
     };
@@ -109,8 +114,8 @@ export default function DownloadPage() {
   const faqs = [
     {
       id: 1,
-      question: "What is BIMLAR?",
-      answer: "BIMLAR is an advanced AR/VR training platform designed to help physical therapists and patients visualize and execute exercises correctly through mixed reality technology."
+      question: "What is STRIDE?",
+      answer: "STRIDE is a cutting-edge physical therapy application designed to help therapists and patients track progress, perform exercises correctly, and achieve better outcomes through AI-assisted movement analysis."
     },
     {
       id: 2,
@@ -128,6 +133,53 @@ export default function DownloadPage() {
       answer: "Yes. All data is encrypted and stored securely. We comply with healthcare data regulations including HIPAA requirements."
     }
   ];
+
+  // Handle file download
+  const handleDownload = async (platform) => {
+    try {
+      setIsDownloading({ ...isDownloading, [platform]: true });
+      
+      // Get the download URL for the selected platform
+      const downloadUrl = downloadUrls[platform];
+      
+      // Make a request to the download endpoint
+      const response = await axios.get(downloadUrl, {
+        responseType: 'blob', // Important for file downloads
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        }
+      });
+      
+      // Create a blob URL for the downloaded file
+      const blob = new Blob([response.data]);
+      const url = window.URL.createObjectURL(blob);
+      
+      // Create a temporary link element to trigger the download
+      const link = document.createElement('a');
+      link.href = url;
+      
+      // Set the filename based on platform
+      const filename = platform === 'windows' 
+        ? 'STRIDE-Setup.exe' 
+        : 'STRIDE-Installer.dmg';
+      
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      
+      // Clean up
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(link);
+      
+      setIsDownloading({ ...isDownloading, [platform]: false });
+    } catch (error) {
+      console.error(`Error downloading ${platform} version:`, error);
+      setIsDownloading({ ...isDownloading, [platform]: false });
+      
+      // You could add error handling UI here if needed
+      alert(`Download failed. Please try again later.`);
+    }
+  };
 
   return (
     <div 
@@ -160,43 +212,91 @@ export default function DownloadPage() {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <h1 style={{ 
-              fontSize: '28px', 
+              fontSize: '24px', 
               fontWeight: 'bold',
               margin: 0,
               color: colors.primary,
-              letterSpacing: '1px'
+              letterSpacing: '1px',
+              fontFamily: "'SANDRE - Regular', 'Arial', sans-serif"
             }}>
-              BIMLAR
+              STRIDE
             </h1>
           </div>
           
-          {/* User welcome message */}
-          {userName && (
-            <div style={{
-              padding: '6px 12px',
-              backgroundColor: 'rgba(255, 128, 50, 0.1)',
-              borderRadius: '6px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}>
+          {/* User welcome message and signout button */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px'
+          }}>
+            {userName && (
               <div style={{
-                width: '28px',
-                height: '28px',
-                borderRadius: '50%',
-                backgroundColor: colors.primary,
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
+                gap: '12px',
+                padding: '12px 16px',
+                backgroundColor: 'rgba(255, 128, 50, 0.1)',
+                borderRadius: '8px'
+              }}>
+                <div style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '50%',
+                  backgroundColor: 'rgba(255, 128, 50, 0.2)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: colors.primary,
+                  fontWeight: 'bold',
+                  fontSize: '16px'
+                }}>
+                  {userName.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <p style={{ margin: 0, fontSize: '15px', color: colors.text }}>
+                    Welcome{userName ? `, ${userName}` : ''}
+                  </p>
+                  <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: colors.textSecondary }}>
+                    Thanks for using STRIDE
+                  </p>
+                </div>
+              </div>
+            )}
+            
+            {/* Sign Out Button */}
+            <button 
+              onClick={handleLogout}
+              style={{
+                backgroundColor: 'rgba(255, 128, 50, 0.1)',
+                color: colors.primary,
+                border: 'none',
+                borderRadius: '8px',
+                padding: '10px 16px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                cursor: 'pointer',
+                fontFamily: 'monospace',
                 fontWeight: 'bold',
                 fontSize: '14px',
-                color: '#fff'
-              }}>
-                {userName.charAt(0).toUpperCase()}
-              </div>
-              <span style={{ color: colors.text }}>Welcome, {userName}</span>
-            </div>
-          )}
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(255, 128, 50, 0.2)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(255, 128, 50, 0.1)';
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+              Sign Out
+            </button>
+          </div>
         </div>
 
         {/* Main content */}
@@ -215,7 +315,7 @@ export default function DownloadPage() {
             marginBottom: '10px',
             color: colors.primary
           }}>
-            Download BIMLAR
+            Download STRIDE
           </h1>
           
           <p style={{ 
@@ -224,7 +324,7 @@ export default function DownloadPage() {
             lineHeight: 1.6,
             color: colors.textSecondary
           }}>
-            Get started with BIMLAR by downloading our application for your operating system.
+            Get started with STRIDE by downloading our application for your operating system.
             After installation, simply login with your account credentials to begin.
           </p>
           
@@ -233,30 +333,46 @@ export default function DownloadPage() {
             gap: '12px',
             marginTop: '20px'
           }}>
-            <a 
-              href="#download-windows" 
+            <button 
+              onClick={() => handleDownload('windows')}
+              disabled={isDownloading.windows}
               style={{
                 backgroundColor: colors.primary,
                 color: '#000',
                 padding: '14px 24px',
                 borderRadius: '8px',
+                border: 'none',
                 textDecoration: 'none',
                 fontWeight: 'bold',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
                 transition: 'all 0.2s ease',
-                boxShadow: '0 4px 12px rgba(255, 128, 50, 0.3)'
+                boxShadow: '0 4px 12px rgba(255, 128, 50, 0.3)',
+                cursor: isDownloading.windows ? 'wait' : 'pointer',
+                opacity: isDownloading.windows ? 0.8 : 1
               }}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
-              </svg>
-              Download for Windows
-            </a>
+              {isDownloading.windows ? (
+                <>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="animate-spin">
+                    <circle cx="12" cy="12" r="10" strokeWidth="4" stroke="currentColor" strokeDasharray="32" strokeDashoffset="8" fill="none" />
+                  </svg>
+                  Downloading...
+                </>
+              ) : (
+                <>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
+                  </svg>
+                  Download for Windows
+                </>
+              )}
+            </button>
             
-            <a 
-              href="#download-mac" 
+            <button 
+              onClick={() => handleDownload('mac')}
+              disabled={isDownloading.mac}
               style={{
                 backgroundColor: 'transparent',
                 color: colors.primary,
@@ -268,23 +384,36 @@ export default function DownloadPage() {
                 alignItems: 'center',
                 gap: '8px',
                 border: `1px solid ${colors.primary}`,
-                transition: 'all 0.2s ease'
+                transition: 'all 0.2s ease',
+                cursor: isDownloading.mac ? 'wait' : 'pointer',
+                opacity: isDownloading.mac ? 0.8 : 1
               }}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
-              </svg>
-              Download for Mac
-            </a>
+              {isDownloading.mac ? (
+                <>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="animate-spin">
+                    <circle cx="12" cy="12" r="10" strokeWidth="4" stroke="currentColor" strokeDasharray="32" strokeDashoffset="8" fill="none" />
+                  </svg>
+                  Downloading...
+                </>
+              ) : (
+                <>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
+                  </svg>
+                  Download for Mac
+                </>
+              )}
+            </button>
           </div>
         </div>
 
         {/* FAQ section */}
         <div style={{ marginBottom: '30px' }}>
           <h2 style={{ 
-            fontSize: '24px', 
+            fontSize: '22px', 
             fontWeight: 'bold', 
-            marginBottom: '20px',
+            marginBottom: '16px',
             color: colors.text
           }}>
             Frequently Asked Questions
@@ -350,60 +479,6 @@ export default function DownloadPage() {
               </div>
             ))}
           </div>
-        </div>
-
-        {/* Updated navigation buttons with orange color */}
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'center',
-          gap: '20px',
-          marginTop: '30px'
-        }}>
-          <Link 
-            to="/provider" 
-            style={{ 
-              color: colors.primary, 
-              textDecoration: 'none',
-              fontWeight: 'bold',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '8px 12px',
-              borderRadius: '6px',
-              transition: 'background 0.2s ease',
-              backgroundColor: 'rgba(255, 128, 50, 0.1)'
-            }}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M3 12h18M3 6h18M3 18h18" />
-            </svg>
-            Go to Dashboard
-          </Link>
-          
-          <button 
-            onClick={handleLogout}
-            style={{ 
-              background: 'rgba(255, 128, 50, 0.1)',
-              border: 'none',
-              color: colors.primary, 
-              padding: '8px 12px',
-              borderRadius: '6px',
-              textDecoration: 'none',
-              fontWeight: 'bold',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              cursor: 'pointer',
-              fontFamily: 'monospace',
-              fontSize: 'inherit',
-              transition: 'background 0.2s ease'
-            }}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
-            </svg>
-            Logout
-          </button>
         </div>
       </div>
     </div>

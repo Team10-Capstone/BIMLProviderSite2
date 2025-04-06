@@ -7,7 +7,6 @@ import axios from 'axios'
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
-  const [isCreator, setIsCreator] = useState(false)
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -48,19 +47,16 @@ export default function LoginPage() {
         withCredentials: true // Important for cookies
       })
       
-      console.log("Login successful:", loginResponse.status)
-      
       // Store the access token in localStorage
       localStorage.setItem('accessToken', loginResponse.data.accessToken)
       
-      // Redirect based on user type
+      // Redirect to download page
       setIsLoading(false)
-      navigate(isCreator ? '/provider' : '/download')
+      navigate('/download')
     } catch (error) {
       setIsLoading(false)
-      console.error("Login error:", error)
       
-      // Display appropriate error message
+      // Handle error without logging sensitive data
       if (error.response) {
         if (error.response.status === 400) {
           setError('User not found. Please check your email.')
@@ -69,9 +65,13 @@ export default function LoginPage() {
         } else {
           setError('Login failed. Please try again later.')
         }
-      } else {
+      } else if (error.request) {
         setError('Network error. Please check your connection.')
+      } else {
+        setError('An unexpected error occurred. Please try again.')
       }
+      
+      console.error("Login error occurred");
     }
   }
 
@@ -80,10 +80,6 @@ export default function LoginPage() {
       ...prev,
       [e.target.id]: e.target.value
     }))
-  }
-
-  const toggleUserType = () => {
-    setIsCreator(prev => !prev)
   }
 
   // Custom input style to apply to all inputs
@@ -99,7 +95,7 @@ export default function LoginPage() {
     transition: 'all 0.2s ease',
     outline: 'none',
     boxSizing: 'border-box',
-  }
+  };
 
   return (
     <div 
@@ -121,7 +117,7 @@ export default function LoginPage() {
     >
       {/* Logo in top left */}
       <div style={{ position: 'absolute', top: '16px', left: '16px', zIndex: 20 }}>
-        <h1 className="text-4xl font-bold text-white opacity-20 tracking-wider glitch">BIMLAR</h1>
+        <h1 className="text-4xl font-bold text-white opacity-20 tracking-wider glitch">STRIDE</h1>
       </div>
 
       {/* Background grid and glow - Updated to match download page */}
@@ -165,55 +161,14 @@ export default function LoginPage() {
             fontSize: '28px', 
             fontWeight: 'bold', 
             marginBottom: '8px',
-            color: 'white',
+            color: colors.text,
             letterSpacing: '0.5px'
           }}>
             Login to Your Account
           </h2>
           <p style={{ color: colors.textSecondary, fontSize: '15px' }}>
-            Welcome back to BIMLAR
+            Welcome back to STRIDE
           </p>
-        </div>
-
-        {/* User type toggle */}
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'center', 
-          gap: '10px', 
-          marginBottom: '24px' 
-        }}>
-          <button 
-            type="button"
-            onClick={() => !isCreator && toggleUserType()}
-            style={{ 
-              padding: '8px 16px',
-              backgroundColor: !isCreator ? 'rgba(255, 128, 50, 0.1)' : 'transparent',
-              border: !isCreator ? 'none' : '1px solid rgba(255, 255, 255, 0.1)',
-              borderRadius: '6px',
-              color: !isCreator ? colors.primary : colors.textSecondary,
-              fontWeight: !isCreator ? 'bold' : 'normal',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-            }}
-          >
-            User
-          </button>
-          <button 
-            type="button"
-            onClick={() => isCreator && toggleUserType()}
-            style={{ 
-              padding: '8px 16px',
-              backgroundColor: isCreator ? 'rgba(255, 128, 50, 0.1)' : 'transparent',
-              border: isCreator ? 'none' : '1px solid rgba(255, 255, 255, 0.1)',
-              borderRadius: '6px',
-              color: isCreator ? colors.primary : colors.textSecondary,
-              fontWeight: isCreator ? 'bold' : 'normal',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-            }}
-          >
-            Creator
-          </button>
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -284,7 +239,7 @@ export default function LoginPage() {
               letterSpacing: '0.5px'
             }}
           >
-            {isLoading ? 'Logging in...' : `Login as ${isCreator ? 'Creator' : 'User'}`}
+            {isLoading ? 'Logging in...' : 'Login'}
           </button>
         </form>
 

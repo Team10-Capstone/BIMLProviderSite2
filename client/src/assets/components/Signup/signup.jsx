@@ -34,36 +34,43 @@ export default function SignupPage() {
     setError('')
     
     try {
-      // Wait 2 seconds as in the provided code
       await new Promise(resolve => setTimeout(resolve, 2000))
-      
-      // Create user account with the structure from the provided code
+
       const request = {
         email: formData.email,
         pass: formData.password,
         provider: isCreator,
         name: formData.name
       }
-      
-      // Use the /register endpoint as in the provided code
+
       const response = await axios.post(`${apiAddress}/users/register`, request, {
-        headers: { "Content-Type": "application/json" }
+        headers: { 
+          "Content-Type": "application/json"
+        }
       })
       
-      console.log('Form submitted:', formData, 'Account type:', isCreator ? 'Creator' : 'User')
       setIsLoading(false)
-      
-      // Redirect to login after successful signup (no auto-login)
-      window.location.href = '/login'
+
+      // Redirect to login after successful signup
+      window.location.href = '/login';
     } catch (error) {
       setIsLoading(false)
-      console.error("Signup error:", error)
       
-      if (error.response && error.response.data) {
-        setError(error.response.data.message || 'Signup failed. Please try again.')
-      } else {
+      // Handle error without logging sensitive data
+      if (error.response) {
+        // Set appropriate error message based on response status
+        if (error.response.status === 409) {
+          setError('Email already exists. Please use a different email or login.')
+        } else {
+          setError('Signup failed. Please try again later.')
+        }
+      } else if (error.request) {
         setError('Network error. Please check your connection.')
+      } else {
+        setError('An unexpected error occurred. Please try again.')
       }
+      
+      console.error("Signup error occurred");
     }
   }
 
@@ -75,7 +82,7 @@ export default function SignupPage() {
   }
 
   const toggleUserType = () => {
-    setIsCreator(prev => !prev)
+    setIsCreator(prev => !prev);
   }
 
   // Custom input style
@@ -113,7 +120,7 @@ export default function SignupPage() {
     >
       {/* Logo in top left */}
       <div style={{ position: 'absolute', top: '16px', left: '16px', zIndex: 20 }}>
-        <h1 className="text-4xl font-bold text-white opacity-20 tracking-wider glitch">BIMLAR</h1>
+        <h1 className="text-4xl font-bold text-white opacity-20 tracking-wider glitch">STRIDE</h1>
       </div>
 
       {/* Background grid and glow */}
