@@ -115,10 +115,19 @@ app.get('/exercises', auth.authenticateToken, async (req, res) => {
     }
 });
 
-app.get('/exercises/list/:pid', auth.authenticateToken, async (req, res) => {
-    const patientId = req.params.pid;
+app.get('/exercises/list', auth.authenticateToken, async (req, res) => {
 
     try {
+        const user = await pool.query(
+            `SELECT patientid_fk FROM biml.login
+             WHERE useremail = $1`, [req.user.useremail]
+        );
+        
+        if (user.rows.length === 0) 
+            return res.status(403).send("Unauthorized");
+
+        const patientId = user.rows[0].patientid_fk;
+
         const result = await pool.query(
             `SELECT s3_key
             FROM biml.exercises
