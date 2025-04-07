@@ -62,10 +62,10 @@ function downloadApp(req, res) {
     try {
         const perms = {
             Bucket: 'biml-bucket',
-            Key: 'test/meow.jpg',
+            Key: 'test/STRIDE Setup (x64).exe',
             Expires: 60,
             ResponseCacheControl: 'no-cache',
-            ResponseContentDisposition: 'attachment; filename="yahoooo.jpg"'
+            ResponseContentDisposition: 'attachment; filename="STRIDE Setup (x64).exe"'
         };
 
         s3.getSignedUrl('getObject', perms, (err, url) => {
