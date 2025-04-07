@@ -28,8 +28,8 @@ export default function DownloadPage() {
   // S3 download URLs - these can be easily updated later
   // Currently pointing to placeholder images, will be updated to actual app builds
   const downloadUrls = {
-    windows: `${apiAddress}/download/windows`,
-    mac: `${apiAddress}/download/mac`
+    windows: `${apiAddress}/app/download`,
+    mac: `${apiAddress}/app/download`
   };
 
   useEffect(() => {
@@ -160,7 +160,7 @@ export default function DownloadPage() {
       
       // Set the filename based on platform
       const filename = platform === 'windows' 
-        ? 'STRIDE-Setup.exe' 
+        ? 'STRIDE Setup (x64).exe' 
         : 'STRIDE-Installer.dmg';
       
       link.setAttribute('download', filename);
