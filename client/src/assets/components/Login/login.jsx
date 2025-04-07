@@ -1,25 +1,78 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import '../../../styles/retro.css'
+import axios from 'axios'
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
-  const [isCreator, setIsCreator] = useState(false)
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   })
+  const [error, setError] = useState('')
+  const navigate = useNavigate()
+
+  // Colors matching download page
+  const colors = {
+    primary: '#FF8032',     // Orange color
+    background: '#2A2A2A',  // Darker background - matching download page
+    text: '#E0E0E0',        // Light text - matching download page
+    textSecondary: '#BBBBBB', // Secondary text - matching download page
+    accent: '#FF8032',      // Same orange as primary
+    hover: '#FF9A5E',       // Lighter orange for hover
+    dark: '#202020',        // Darker shade
+    card: '#333333',        // Card background
+    cardHover: '#404040'    // Card hover
+  };
+
+  // API address from environment
+  const apiAddress = import.meta.env.VITE_SERVER_ADDRESS
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setIsLoading(true)
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    console.log('Form submitted:', formData)
-    setIsLoading(false)
-    // Redirect based on user type
-    window.location.href = isCreator ? '/provider' : '/download';
+    setError('')
+    
+    try {
+      const credentials = {
+        email: formData.email,
+        pass: formData.password,
+        tid: "t" + Math.floor(Math.random() * 1000) // Generate random tid
+      }
+
+      // Send login request
+      const loginResponse = await axios.post(`${apiAddress}/users/login`, credentials, { 
+        withCredentials: true // Important for cookies
+      })
+      
+      // Store the access token in localStorage
+      localStorage.setItem('accessToken', loginResponse.data.accessToken)
+      
+      // Redirect to download page
+      setIsLoading(false)
+      navigate('/download')
+    } catch (error) {
+      setIsLoading(false)
+      
+      // Handle error without logging sensitive data
+      if (error.response) {
+        if (error.response.status === 400) {
+          setError('User not found. Please check your email.')
+        } else if (error.response.status === 401) {
+          setError('Incorrect password. Please try again.')
+        } else {
+          setError('Login failed. Please try again later.')
+        }
+      } else if (error.request) {
+        setError('Network error. Please check your connection.')
+      } else {
+        setError('An unexpected error occurred. Please try again.')
+      }
+      
+      console.error("Login error occurred");
+    }
   }
 
   const handleChange = (e) => {
@@ -29,18 +82,14 @@ export default function LoginPage() {
     }))
   }
 
-  const toggleUserType = () => {
-    setIsCreator(prev => !prev);
-  }
-
   // Custom input style to apply to all inputs
   const inputStyle = {
     width: '100%',
     padding: '12px 16px',
-    backgroundColor: 'rgba(15, 20, 34, 0.6)',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(0, 0, 0, 0.2)', // Darker input background to match download page
+    border: '1px solid rgba(255, 255, 255, 0.05)', // Border to match download page
     borderRadius: '6px',
-    color: 'white',
+    color: colors.text,
     fontSize: '16px',
     fontFamily: 'monospace',
     transition: 'all 0.2s ease',
@@ -59,44 +108,46 @@ export default function LoginPage() {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#111827',
-        fontFamily: 'monospace'
+        backgroundColor: colors.background, // Updated to match download page
+        fontFamily: 'monospace',
+        overflow: 'auto',
+        padding: '20px',
+        color: colors.text
       }}
     >
       {/* Logo in top left */}
       <div style={{ position: 'absolute', top: '16px', left: '16px', zIndex: 20 }}>
-        <h1 className="text-4xl font-bold text-white opacity-20 tracking-wider glitch">BIMLAR</h1>
+        <h1 className="text-4xl font-bold text-white opacity-20 tracking-wider glitch">STRIDE</h1>
       </div>
 
-      {/* Background grid and glow */}
+      {/* Background grid and glow - Updated to match download page */}
       <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:14px_24px]" />
-        <div className="absolute left-0 right-0 top-[-10%] h-[500px] bg-gradient-to-br from-purple-500 to-blue-500 opacity-20 blur-[100px]" />
+        <div className="absolute left-0 right-0 top-[-10%] h-[500px] bg-gradient-to-br from-orange-500 to-orange-700 opacity-20 blur-[100px]" />
       </div>
 
-      {/* Form Card */}
+      {/* Login Form - Centered */}
       <div style={{ 
         width: '100%', 
         maxWidth: '420px', 
         padding: '32px 36px',
-        backgroundColor: 'rgba(27, 33, 51, 0.7)',
-        backdropFilter: 'blur(12px)',
+        backgroundColor: 'rgba(0, 0, 0, 0.2)',
         borderRadius: '12px',
-        border: '1px solid rgba(255, 255, 255, 0.15)',
+        border: '1px solid rgba(255, 255, 255, 0.05)',
         boxShadow: '0 20px 50px rgba(0, 0, 0, 0.3)',
         position: 'relative',
         zIndex: 10,
-        boxSizing: 'border-box',
-        color: 'white'
+        boxSizing: 'border-box'
       }}>
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          {/* Added brain icon matching signup page */}
           <svg 
             style={{ 
               width: '64px', 
               height: '64px', 
-              color: '#b760ea', 
+              color: colors.primary, 
               margin: '0 auto 20px',
-              filter: 'drop-shadow(0 0 8px rgba(183, 96, 234, 0.5))'
+              filter: 'drop-shadow(0 0 8px rgba(255, 128, 50, 0.5))'
             }}
             viewBox="0 0 24 24" 
             fill="none" 
@@ -110,61 +161,14 @@ export default function LoginPage() {
             fontSize: '28px', 
             fontWeight: 'bold', 
             marginBottom: '8px',
-            color: 'white',
+            color: colors.text,
             letterSpacing: '0.5px'
           }}>
-            Welcome Back
+            Login to Your Account
           </h2>
-          <p style={{ color: '#94a3b8', fontSize: '15px' }}>
-            Sign in to your account to continue
+          <p style={{ color: colors.textSecondary, fontSize: '15px' }}>
+            Welcome back to STRIDE
           </p>
-        </div>
-
-        {/* User Type Toggle */}
-        <div style={{ 
-          display: 'flex', 
-          marginBottom: '24px',
-          backgroundColor: 'rgba(15, 20, 34, 0.6)',
-          borderRadius: '6px',
-          padding: '4px',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-        }}>
-          <button
-            type="button"
-            onClick={toggleUserType}
-            style={{
-              flex: 1,
-              padding: '8px 16px',
-              borderRadius: '6px',
-              border: 'none',
-              background: isCreator ? 'transparent' : 'rgba(183, 96, 234, 0.5)',
-              color: isCreator ? '#a1a1aa' : 'white',
-              fontFamily: 'monospace',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-            }}
-          >
-            User
-          </button>
-          <button
-            type="button"
-            onClick={toggleUserType}
-            style={{
-              flex: 1,
-              padding: '8px 16px',
-              borderRadius: '6px',
-              border: 'none',
-              background: isCreator ? 'rgba(183, 96, 234, 0.5)' : 'transparent',
-              color: isCreator ? 'white' : '#a1a1aa',
-              fontFamily: 'monospace',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-            }}
-          >
-            Creator
-          </button>
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -172,7 +176,7 @@ export default function LoginPage() {
             <label 
               htmlFor="email" 
               style={{ 
-                color: '#d1d5db', 
+                color: colors.text, 
                 fontSize: '14px',
                 fontWeight: 'bold',
                 letterSpacing: '0.5px',
@@ -196,7 +200,7 @@ export default function LoginPage() {
             <label 
               htmlFor="password" 
               style={{ 
-                color: '#d1d5db', 
+                color: colors.text, 
                 fontSize: '14px',
                 fontWeight: 'bold',
                 letterSpacing: '0.5px',
@@ -222,7 +226,7 @@ export default function LoginPage() {
             style={{
               width: '100%',
               padding: '14px 0',
-              backgroundColor: '#b760ea',
+              backgroundColor: colors.primary,
               color: 'white',
               border: 'none',
               borderRadius: '8px',
@@ -231,27 +235,38 @@ export default function LoginPage() {
               fontWeight: 'bold',
               cursor: isLoading ? 'wait' : 'pointer',
               transition: 'transform 0.2s, box-shadow 0.2s',
-              boxShadow: '0 4px 12px rgba(183, 96, 234, 0.3)',
+              boxShadow: '0 4px 12px rgba(255, 128, 50, 0.3)',
               letterSpacing: '0.5px'
             }}
           >
-            {isLoading ? 'Logging in...' : `Login as ${isCreator ? 'Creator' : 'User'}`}
+            {isLoading ? 'Logging in...' : 'Login'}
           </button>
         </form>
+
+        {error && (
+          <p style={{ 
+            color: '#ff6b6b', 
+            marginTop: '10px', 
+            textAlign: 'center',
+            fontSize: '14px' 
+          }}>
+            {error}
+          </p>
+        )}
 
         <p style={{ 
           marginTop: '28px', 
           textAlign: 'center', 
           fontSize: '15px', 
-          color: '#b8bfd0' 
+          color: colors.textSecondary
         }}>
           Don't have an account?{' '}
           <Link to="/signup" style={{ 
-            color: '#c490fd', 
+            color: colors.hover,
             textDecoration: 'none',
             fontWeight: 'bold',
             transition: 'color 0.2s',
-            textShadow: '0 0 12px rgba(196, 144, 253, 0.5)'
+            textShadow: '0 0 12px rgba(255, 128, 50, 0.5)'
           }}>
             Sign up
           </Link>
