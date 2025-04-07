@@ -137,46 +137,30 @@ export default function DownloadPage() {
   // Handle file download
   const handleDownload = async (platform) => {
     try {
-      setIsDownloading({ ...isDownloading, [platform]: true });
-      
-      // Get the download URL for the selected platform
-      const downloadUrl = downloadUrls[platform];
-      
-      // Make a request to the download endpoint
-      const response = await axios.get(downloadUrl, {
-        responseType: 'blob', // Important for file downloads
+      console.log("Starting download for:", platform);
+      setIsDownloading((prev) => ({ ...prev, [platform]: true }));
+
+      // Step 1: Get the presigned URL from your server
+      const response = await axios.get(downloadUrls[platform], {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`
         }
       });
-      
-      // Create a blob URL for the downloaded file
-      const blob = new Blob([response.data]);
-      const url = window.URL.createObjectURL(blob);
-      
-      // Create a temporary link element to trigger the download
-      const link = document.createElement('a');
-      link.href = url;
-      
-      // Set the filename based on platform
-      const filename = platform === 'windows' 
-        ? 'STRIDE Setup (x64).exe' 
-        : 'STRIDE-Installer.dmg';
-      
-      link.setAttribute('download', filename);
-      document.body.appendChild(link);
-      link.click();
-      
-      // Clean up
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(link);
-      
-      setIsDownloading({ ...isDownloading, [platform]: false });
+
+      console.log("Got presigned URL response:", response.data);
+
+      const fileUrl = response.data.url;
+      if (!fileUrl) throw new Error("No file URL returned!");
+      window.location.href = fileUrl;
+
+      // Optional: You can still clear the loading state after a small delay
+      setTimeout(() => {
+        setIsDownloading((prev) => ({ ...prev, [platform]: false }));
+      }, 2000); // Let the download start before marking it as done
+
     } catch (error) {
       console.error(`Error downloading ${platform} version:`, error);
-      setIsDownloading({ ...isDownloading, [platform]: false });
-      
-      // You could add error handling UI here if needed
+      setIsDownloading((prev) => ({ ...prev, [platform]: false }));
       alert(`Download failed. Please try again later.`);
     }
   };
